@@ -216,6 +216,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
             "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy()),
             "all/attn": utils.plot_alignment_to_numpy(attn[0,0].data.cpu().numpy())
         }
+        print([x.item() for x in losses] + [global_step, lr])
         utils.summarize(
           writer=writer,
           global_step=global_step, 
@@ -224,6 +225,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
 
       if global_step % hps.train.eval_interval == 0:
         evaluate(hps, net_g, eval_loader, writer_eval)
+        print("save model...")
         utils.save_checkpoint(net_g, optim_g, hps.train.learning_rate, epoch, os.path.join(hps.model_dir, "G_{}.pth".format(global_step)))
         utils.save_checkpoint(net_d, optim_d, hps.train.learning_rate, epoch, os.path.join(hps.model_dir, "D_{}.pth".format(global_step)))
     global_step += 1
